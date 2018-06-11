@@ -2,8 +2,6 @@ requisition_fieldset = (
     'Requisition', {
         'fields': (
             'is_drawn',
-            'reason_not_drawn',
-            'reason_not_drawn_other',
             'drawn_datetime',
             'item_type',
             'item_count',
