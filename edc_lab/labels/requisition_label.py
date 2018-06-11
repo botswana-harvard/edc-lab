@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from edc_label import Label
-from edc_registration.models import RegisteredSubject
+# from edc_registration.models import RegisteredSubject
 from arrow.arrow import Arrow
 from django.conf import settings
 
@@ -18,8 +18,8 @@ class RequisitionLabel(Label):
         self.item = item or 1
         self.requisition = requisition
         self.user = user
-        self.registered_subject = RegisteredSubject.objects.get(
-            subject_identifier=self.requisition.subject_identifier)
+#         self.registered_subject = RegisteredSubject.objects.get(
+#             subject_identifier=self.requisition.subject_identifier)
         self.label_name = self.requisition.human_readable_identifier
 
     @property
@@ -40,9 +40,9 @@ class RequisitionLabel(Label):
             'site_name': str(self.requisition.site.name),
             'clinician_initials': self.user.username[0:2].upper(),
             'drawn_datetime': f'{printed}{formatted_date}',
-            'subject_identifier': self.registered_subject.subject_identifier,
-            'gender': self.registered_subject.gender,
-            'dob': self.registered_subject.dob,
-            'initials': self.registered_subject.initials,
+            'subject_identifier': self.requisition.subject_identifier,
+            'gender': 'N/A', #self.registered_subject.gender,
+            'dob': 'N/A', #self.registered_subject.dob,
+            'initials': 'N/A', #self.registered_subject.initials,
             'alpha_code': self.requisition.panel_object.alpha_code,
             'panel': self.requisition.panel_object.abbreviation}

@@ -32,9 +32,9 @@ requisition_status_fieldset = (
 
 
 requisition_identifier_fields = (
-    'requisition_identifier',
+#     'requisition_identifier',
     'identifier_prefix',
-    'primary_aliquot_identifier'
+#     'primary_aliquot_identifier'
 )
 
 requisition_identifier_fieldset = (

@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 
-from edc_registration.models import RegisteredSubject
+# from edc_registration.models import RegisteredSubject
 
 from .base_label import BaseLabel
 
@@ -26,12 +26,12 @@ class AliquotLabel(BaseLabel):
                 requisition_identifier=self.model_obj.requisition_identifier)
         return self._requisition
 
-    @property
-    def registered_subject(self):
-        if not self._registered_subject:
-            self._registered_subject = RegisteredSubject.objects.get(
-                subject_identifier=self.requisition.subject_identifier)
-        return self._registered_subject
+#     @property
+#     def registered_subject(self):
+#         if not self._registered_subject:
+#             self._registered_subject = RegisteredSubject.objects.get(
+#                 subject_identifier=self.requisition.subject_identifier)
+#         return self._registered_subject
 
     @property
     def label_context(self):
@@ -47,9 +47,9 @@ class AliquotLabel(BaseLabel):
             'clinician_initials': self.requisition.user_created[0:2].upper(),
             'drawn_datetime': self.requisition.drawn_datetime.strftime(
                 '%Y-%m-%d %H:%M'),
-            'subject_identifier': self.registered_subject.subject_identifier,
-            'gender': self.registered_subject.gender,
-            'dob': self.registered_subject.dob,
-            'initials': self.registered_subject.initials,
+            'subject_identifier': self.requisition.subject_identifier,
+            'gender': 'N/A', #self.registered_subject.gender,
+            'dob': 'N/A', #self.registered_subject.dob,
+            'initials': 'N/A', #self.registered_subject.initials,
             'alpha_code': self.model_obj.alpha_code,
             'panel': self.requisition.panel_object.abbreviation}

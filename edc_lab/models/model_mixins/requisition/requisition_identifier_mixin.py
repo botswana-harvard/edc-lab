@@ -15,7 +15,9 @@ class RequisitionIdentifierMixin(models.Model):
     requisition_identifier = models.CharField(
         verbose_name='Requisition Id',
         max_length=50,
-        unique=True)
+        null=True,
+        unique=True,
+        blank=True)
 
     identifier_prefix = models.CharField(
         max_length=50,
@@ -32,8 +34,8 @@ class RequisitionIdentifierMixin(models.Model):
     def save(self, *args, **kwargs):
         if not self.requisition_identifier:
             self.requisition_identifier = get_uuid()
-        self.protocol_number = self.get_protocol_number()
-        self.requisition_identifier = self.get_requisition_identifier()
+#         self.protocol_number = self.get_protocol_number()
+            self.requisition_identifier = self.get_requisition_identifier()
         super().save(*args, **kwargs)
 
     @property
