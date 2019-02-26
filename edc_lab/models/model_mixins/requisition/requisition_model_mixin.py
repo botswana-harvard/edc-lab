@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from edc_base.model_fields import InitialsField
 from edc_base.model_fields.custom_fields import OtherCharField
+from edc_base.model_validators.date import datetime_not_future
 from edc_base.sites.site_model_mixin import SiteModelMixin
 from edc_constants.choices import YES_NO
 from edc_constants.constants import NOT_APPLICABLE
@@ -20,6 +21,7 @@ class RequisitionModelMixin(PanelModelMixin, SiteModelMixin,
 
     drawn_datetime = models.DateTimeField(
         verbose_name='Date / Time Specimen Drawn',
+        validators=[datetime_not_future, ],
         null=True,
         blank=True,
         help_text=(
