@@ -58,7 +58,7 @@ class RequisitionFormMixin:
             instance=self.instance)
         form_validator.applicable_if(
             NO, field='is_drawn', field_applicable='reason_not_drawn')
-        form_validator.validate_other_specify(field='reason_not_drawn')
+        self.validate_other_specify_field(form_validator=form_validator)
         form_validator.required_if(
             YES, field='is_drawn', field_required='drawn_datetime')
         form_validator.applicable_if(
@@ -93,3 +93,6 @@ class RequisitionFormMixin:
                 raise forms.ValidationError({
                     'requisition_datetime':
                     f'Invalid. Cannot be before date of visit {formatted}.'})
+
+    def validate_other_specify_field(self, form_validator=None):
+        form_validator.validate_other_specify(field='reason_not_drawn')
