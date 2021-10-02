@@ -29,6 +29,7 @@ class ManifestReport(Report):
         self.box_model = django_apps.get_model(app_config.box_model)
         self.box_item_model = django_apps.get_model(app_config.box_item_model)
         self.aliquot_model = django_apps.get_model(app_config.aliquot_model)
+        self.requisition_model = django_apps.get_model(app_config.requisition_model)
         self.image_folder = os.path.join(
             settings.STATIC_ROOT, 'bcpp', 'images')
 
@@ -76,17 +77,17 @@ class ManifestReport(Report):
             box_identifier__in=[
                 obj.identifier for obj in self.manifest.manifestitem_set.all()])
         box_items = self.box_item_model.objects.filter(box__in=boxes)
-        aliquots = self.aliquot_model.objects.filter(
-            aliquot_identifier__in=[
+        requisitions = self.requisition_model.objects.filter(
+            requisition_identifier__in=[
                 obj.identifier for obj in box_items])
-        specimen_types = list(set([obj.aliquot_type for obj in aliquots]))
+        specimen_types = list(set([obj.specimen_type for obj in requisitions]))
         description = {
             'box_count': boxes.count(),
-            'specimen_count': aliquots.count(),
+            'specimen_count': requisitions.count(),
             'specimen_types': ', '.join(specimen_types)
         }
         box_word = 'box' if boxes.count() == 1 else 'boxes'
-        specimen_word = 'specimen' if aliquots.count() == 1 else 'specimens'
+        specimen_word = 'specimen' if requisitions.count() == 1 else 'specimens'
         type_word = 'type' if len(specimen_types) == 1 else 'types'
         return (
             '{box_count} {box_word} containing {specimen_count} '
@@ -331,22 +332,22 @@ class ManifestReport(Report):
                 Paragraph('DATE', self.styles["line_label_center"]),
             ]]
             for box_item in box.boxitem_set.all().order_by('position'):
-                aliquot = self.get_aliquot(box_item.identifier)
-                panel_object = self.get_panel_object(aliquot)
+                requisition = self.get_requisition(box_item.identifier)
+                panel_object = self.get_panel_object(requisition)
                 barcode = code39.Standard39(
-                    aliquot.aliquot_identifier, barHeight=5 * mm, stop=1)
+                    requisition.requisition_identifier, barHeight=5 * mm, stop=1)
                 table_data.append([
                     barcode,
                     Paragraph(str(box_item.position), self.styles['row_data']),
                     Paragraph(
-                        aliquot.human_readable_identifier, self.styles['row_data']),
+                        requisition.human_readable_identifier, self.styles['row_data']),
                     Paragraph(
-                        aliquot.subject_identifier, self.styles['row_data']),
+                        requisition.subject_identifier, self.styles['row_data']),
                     Paragraph('{} ({}) {}'.format(
-                        aliquot.aliquot_type,
-                        aliquot.numeric_code,
+                        '88',
+                        '77',
                         panel_object.abbreviation), self.styles['row_data']),
-                    Paragraph(aliquot.aliquot_datetime.strftime(
+                    Paragraph(requisition.requisition_datetime.strftime(
                         '%Y-%m-%d'), self.styles['row_data']),
                 ])
                 t1 = Table(table_data)
@@ -369,17 +370,29 @@ class ManifestReport(Report):
                 code='invalid_aliquot_identifier')
         return aliquot
 
-    def get_panel_object(self, aliquot=None):
+    def get_requisition(self, box_item_identifier=None):
+        """Returns the requisition instance for this box item.
+        """
+        try:
+            requisition = self.requisition_model.objects.get(
+                requisition_identifier=box_item_identifier)
+        except self.requisition_model.DoesNotExist as e:
+            raise ManifestReportError(
+                f'{e} Got Box item \'{box_item_identifier}\'',
+                code='invalid_requisition_identifier')
+        return requisition
+
+    def get_panel_object(self, requisition=None):
         """Returns the panel object associated with this
-        aliquot.
+        requisition.
         """
         app_config = django_apps.get_app_config('edc_lab')
         requisition_model = django_apps.get_model(app_config.requisition_model)
         try:
             requisition = requisition_model.objects.get(
-                requisition_identifier=aliquot.requisition_identifier)
+                requisition_identifier=requisition.requisition_identifier)
         except ObjectDoesNotExist as e:
             raise ManifestReportError(
-                f'{e} Got requisition identifier {aliquot.requisition_identifier}',
+                f'{e} Got requisition identifier {requisition.requisition_identifier}',
                 code='invalid_requisition_identifier')
         return requisition.panel_object
