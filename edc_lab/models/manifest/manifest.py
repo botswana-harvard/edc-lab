@@ -35,14 +35,15 @@ class Manifest(ManifestModelMixin, SearchSlugModelMixin, BaseUuidModel):
         verbose_name='Shipper/Exporter',
         on_delete=PROTECT)
 
-    on_site = CurrentSiteManager()
-
     objects = Manager()
+
+    on_site = CurrentSiteManager()
 
     history = HistoricalRecords()
 
     def natural_key(self):
-        return (self.manifest_identifier, )
+        return (self.manifest_identifier,)
+
     natural_key.dependencies = ['edc_lab.shipper', 'edc_lab.consignee']
 
     def __str__(self):
